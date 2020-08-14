@@ -3,52 +3,33 @@ from Bank_List import *
 from pckg import *
 from datetime import datetime, timedelta
 import threading
-import time
 import csv
 
-read_time = datetime.utcnow()
-end = read_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
-eLog={}
-threadList=[]
+def callThreads(tList):
+    #starts each thread
+    for i in tList:
+        i.start()
+    #joins each thread
+    for i in tList:
+        i.join()
 
-try:
-    with open('last_run.txt', "r") as f:
-        start = f.read()
-except:
-    print("No Existing file exits so extracting log of last 60 min")
-    start = (read_time - timedelta(minutes=60)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+def mplDownload(id,url,link):
+    global logData
+    threadData=[]
+    response=download_delta(id,url+link)
+    for _i in response:
+        for i in _i:
+            for j in i:
+                if (i[j] == None):
+                    i[j] = ""
+            timestamp = int((i["LogStart"])[6:-2])
+            date = datetime.utcfromtimestamp(timestamp / 1000).strftime('%b %d %Y %H:%M:%S')
 
-print("Download Started for time range --- ", start, " and ", end)
-
-
-class downloadmpl (threading.Thread):
-    logData = []
-    def __init__(self, tenantId, tenantUrl, mplLink):
-        threading.Thread.__init__(self)
-        self.id = tenantId
-        self.url = tenantUrl
-        self.mpl = mplLink
-
-    def run(self):
-            log_response=download_delta(self.id,self.url+self.mpl)
-            self.filter_output(self.id,log_response)
-
-    def filter_output(self,t_id, out_json):
-        threadData=[]
-        for _i in out_json:
-            for i in _i:
-                for j in i:
-                    if (i[j] == None):
-                        i[j] = ""
-                timestamp = int((i["LogEnd"])[6:-2])
-                date = datetime.utcfromtimestamp(timestamp / 1000).strftime('%b %d %Y %H:%M:%S')
-
-                threadData.append(
-                    [timestamp, t_id, str(i["Status"]), str(i["IntegrationFlowName"]), str(i["MessageGuid"]), date,
-                     str(i["CorrelationId"]), \
-                     str(i["Sender"]), str(i["Receiver"]), i["ApplicationMessageType"], i["ApplicationMessageId"]])
-        downloadmpl.logData.extend(threadData)
-
+            threadData.append(
+                [timestamp,id, str(i["Status"]), str(i["IntegrationFlowName"]), str(i["MessageGuid"]), date,
+                 str(i["CorrelationId"]), \
+                 str(i["Sender"]), str(i["Receiver"]), i["ApplicationMessageType"], i["ApplicationMessageId"]])
+    logData.extend(threadData)
 
 def logDownload(id, guid, cid, ):
     global eLog
@@ -56,7 +37,6 @@ def logDownload(id, guid, cid, ):
     e = requests.get(eu2Tenants[id][0] + path + guid + "')/$value", headers=hder)
     eLog.update({cid:e.text})  # Appended Error Text
     print(cid)
-
 
 def format_data(data):
 
@@ -66,12 +46,12 @@ def format_data(data):
     unique_c_id = "Initial"
     unique_m_id = "Initial"
     unique_time = ""
-    logThread=[]
+    logThreadList=[]
     for i in data:
         if (i[6] != unique_c_id):
             #extract the last unique entry to make the API call for the error log.
             if (unique_c_id != "Initial"):
-                logThread.append(threading.Thread(target=logDownload,args=(unique_data[-1][1],unique_m_id,unique_c_id)))
+                logThreadList.append(threading.Thread(target=logDownload,args=(unique_data[-1][1],unique_m_id,unique_c_id)))
                 # path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
                 # e = requests.get(eu2Tenants[unique_data[-1][1]][0] + path + unique_m_id + "')/$value", headers=hder)
                 # unique_data[-1].append(e.text)  # Appended Error Text
@@ -112,29 +92,19 @@ def format_data(data):
                     unique_data[-1][9] = i[9]  # Append AMID if unique
 
     #starting the threads to download the error log
-    count=0
-    print(time.time())
-    for i in logThread:
-        count+=1
-        i.start()
+    callThreads(logThreadList)
 
-    for i in logThread:
-        i.join()
-    print(count)
-    print(time.time())
+
     # logs=infoDownload.eLog
     # for key,val in eLog.items():
     #     print(key, val)
 
     #Creating final usable data with unique entries and error code defined
-
-
-
     del unique_data[-1]
     unique_data=list(x[1:] for x in unique_data)
     for i in unique_data:
-        i.append(eLog[i[5]])
-
+        if (eLog.get(i[5])==True):
+            i.append(eLog[i[5]])
 
     with open('MBC_Logs.csv',"w") as csv_file:
         d_writer = csv.writer(csv_file)
@@ -144,32 +114,33 @@ def format_data(data):
         # d_writer.writerows(data)
         d_writer.writerows(unique_data)
 
-# start time for next run( .1 Second Overlap)
 
-    print("Updating timing for next run")
-    wr = (read_time - timedelta(seconds=0.1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
-    with open('last_run.txt', "w+") as f:
-        f.write(wr)
+read_time = datetime.utcnow()
+end = read_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
 
-#list containing threads for all the MBC tenants
-
-
+try:
+    with open('last_run.txt', "r") as f:
+        start = f.read()
+except:
+    print("No Existing file exits so extracting log of last 60 min")
+    start = (read_time - timedelta(minutes=60)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+eLog = {}
+mplThreadList = []
+logData = []
 mplLink = ".hana.ondemand.com/api/v1/MessageProcessingLogs/?$inlinecount=allpages&$filter=(Status eq 'FAILED' or Status eq 'ESCALATED')\
      and LogEnd gt datetime'" + str(start) + "' and LogEnd lt datetime'" + str(end) + "'"
 
+print("Download Started for time range --- ", start, " and ", end)
+#Creating a thread for each of the tenants
 for id, value in eu2Tenants.items():
-    #Creating a thread for each of the tenants
-    threadList.append(downloadmpl(id,value[0],mplLink))
-
-#Starts each thread and then joins them
-for i in threadList:
-    i.start()
-for i in threadList:
-    i.join()
+    mplThreadList.append(threading.Thread(target=mplDownload,args=(id,value[0],mplLink)))
+callThreads(mplThreadList)
 
 print("Download delta Function for all threads complete")
-data=downloadmpl.logData
-# for i in data:
-#     print(i)
-format_data(data)
+format_data(logData)
 
+# start time for next run( .1 Second Overlap)
+print("Updating timing for next run")
+wr = (read_time - timedelta(seconds=0.1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+with open('last_run.txt', "w+") as f:
+    f.write(wr)
