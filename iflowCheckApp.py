@@ -2,7 +2,7 @@ from flask import Flask
 from flask import make_response
 from flask import jsonify
 from ErrorIflowCheck import *
-from cluster import *
+from common.cluster import *
 #from Bank_List import *
 
 def logic(cluster):

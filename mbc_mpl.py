@@ -1,6 +1,6 @@
 # Change Line 132 based on python version (2.7 or 3.6)
-from Bank_List import *
-from pckg import *
+from common.Bank_List import *
+from common.pckg import *
 from datetime import datetime, timedelta
 import threading
 import csv
