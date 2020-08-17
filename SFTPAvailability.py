@@ -4,10 +4,17 @@ hostname = "DEWDFGLP01721.wdf.sap.corp"
 username = "I349233"
 password = "Ich_Maco_123"
 commands = [
+
     "pwd",
     "id",
     "uname -a",
     "df -h"
+    # "sudo su - cleouser",
+    # "ps -ef | grep VLT",
+
+
+#for proxy servers
+#"ps -ef | grep VLP",
 ]
 
 # initialize the SSH client
@@ -25,7 +32,10 @@ except:
 for command in commands:
     print("="*50, command, "="*50)
     stdin, stdout, stderr = client.exec_command(command)
-    print(stdout.read().decode())
+    output=str(stdout.read().decode())
+    print(output.count("\n"))
+
+
     err = stderr.read().decode()
     if err:
         print(err)

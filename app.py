@@ -11,27 +11,10 @@ def logic(cluster):
         return make_response(jsonify({'Status': 'Ok'}), 200)
 
     elif(res[0]==201):
-        return make_response(jsonify(res[1]), 500)
+        return make_response(jsonify(prepareErrorData(res[1])), 500)
     else:
-        x=jsonifyData(res[1])
-        return make_response(jsonify(x),201)
-
-def jsonifyData(data):
-    x = {}
-    for i, j in data.items():
-        count = 0
-        if j[0] != "Ok":
-
-            x.update({str(count):{}})
-            x[str(count)].update({'Name': str(j[2])})
-            x[str(count)].update({'Url': str(j[3])})
-            x[str(count)].update({'Count': str(j[1])})
-            x[str(count)].update({'IflowDetails': []})
-            for k in range(4, len(j)):
-                x[str(count)]['IflowDetails'].append({'Id': str(j[k][0]),'Version': str(j[k][1]),'Name': str(j[k][2])})
-        count+=1
-    return x
-
+        # return make_response(json.dumps(prepareData(res[1]), sort_keys=False, indent=4, separators=(',', ': ')),201)
+        return make_response(jsonify(prepareData(res[1])), 201)
 
 app=Flask(__name__)
 app.config["DEBUG"] = True

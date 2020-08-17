@@ -38,6 +38,36 @@ def logDownload(id, guid, cid, ):
     eLog.update({cid:e.text})  # Appended Error Text
     print(cid)
 
+def read_CSV(file, json_file):
+    csv_rows = []
+    with open(file) as csvfile:
+        reader = csv.DictReader(csvfile)
+        field = reader.fieldnames
+        for row in reader:
+            csv_rows.extend([{field[i]: row[field[i]] for i in range(len(field))}])
+        with open(json_file, "w") as f:
+            json_data = f.write(json.dumps(csv_rows, sort_keys=False, indent=4, separators=(',', ': ')))
+            print(json_data)
+            return json_data
+            # read_JSON(file, json_file)
+
+def read_JSON(json_file):
+    with open(json_file, 'r') as myfile:
+        data = json.load(myfile)
+
+    print(data)  # Display the Json Data on the Console
+    url = "https://api-smartops-dev.cfapps.us10.hana.ondemand.com/ibso/cpi"
+    headers = {'Content-Type': 'application/json', "Accept": 'application/json'}
+    response = requests.post(url, auth=HTTPBasicAuth(username='IBSO_SMARTOPS_USER', password='buk95gR7gb7%u1x'),
+                             data=json.dumps(data), headers=headers)
+    print(response.status_code)  # Print the Response Code
+    print(response.text)  # Print the response text
+
+    # print(response.headers)  # print response headers
+    # return (response.status_code)
+    print("After sending the Data")
+    print(data)
+
 def format_data(data):
 
     data = sorted(data, key=lambda x: x[6], )  # Sorting by Correlation id
@@ -94,11 +124,6 @@ def format_data(data):
     #starting the threads to download the error log
     callThreads(logThreadList)
 
-
-    # logs=infoDownload.eLog
-    # for key,val in eLog.items():
-    #     print(key, val)
-
     #Creating final usable data with unique entries and error code defined
     del unique_data[-1]
     unique_data=list(x[1:] for x in unique_data)
@@ -108,12 +133,15 @@ def format_data(data):
 
     with open('MBC_Logs.csv',"w") as csv_file:
         d_writer = csv.writer(csv_file)
-        header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
+        header = ["Client", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
                   "Sender", "Receiver", "ApplicationMessageType", "Application-Id", "ErrorInformation"]
         d_writer.writerow(header)
         # d_writer.writerows(data)
         d_writer.writerows(unique_data)
 
+        read_CSV(file, json_file)
+
+        read_JSON(json_file)
 
 read_time = datetime.utcnow()
 end = read_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]

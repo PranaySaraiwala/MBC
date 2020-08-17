@@ -6,6 +6,7 @@ def jsonifyData(data):
     for i, j in data.items():
         count = 0
         if j[0] != "Ok":
+            print(j)
 
             x.update({str(count):{}})
             x[str(count)].update({"Name": j[2]})
@@ -18,6 +19,6 @@ def jsonifyData(data):
     return x
 
 x=main(eu2Tenants)
-res=jsonifyData(x[1])
-for i,j in res.items():
-    print (i,j)
+
+json_data = (json.dumps(jsonifyData(x[1]), sort_keys=False, indent=4, separators=(',', ': ')))
+print(json_data)
