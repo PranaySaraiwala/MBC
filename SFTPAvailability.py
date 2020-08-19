@@ -2,7 +2,7 @@ import paramiko
 
 hostname = "DEWDFGLP01721.wdf.sap.corp"
 username = "I349233"
-password = "Ich_Maco_123"
+pwd=
 commands = [
 
     "pwd",

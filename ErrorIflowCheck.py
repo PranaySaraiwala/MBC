@@ -34,7 +34,6 @@ def prepareErrorData(data):
     return x
 
 def main(tenantList):
-    print(type(tenantList))
     flag = 0
     result = {}
     err = {}
@@ -94,16 +93,20 @@ def main(tenantList):
     #execution resumes here once all threads have completed executing.
 
     print("All Threads Completed\n")
-    print("*"*50+"RESULT"+"*"*50)
+    print("*"*20+"RESULT"+"*"*20)
 
     if(flag==0 and len(err)==0):
         print("No Failed Iflows")
+        print("*"*46)
         return (200,"Ok")
     elif(len(err)!=0):
         print("Some checks failed")
+        print("*" * 46)
         return (201,err)
         # for key,val in err.items():
         #     print (key,val)
     else:
+        print("Found some failed Iflows")
+        print("*" * 46)
         return (202,result)
 

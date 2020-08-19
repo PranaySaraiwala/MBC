@@ -21,7 +21,7 @@ app.config["DEBUG"] = True
 
 import os
 
-port = int(os.getenv("PORT", 9009))
+port = int(os.getenv("PORT", 9010))
 
 
 @app.route('/', methods=['GET'])
@@ -44,6 +44,26 @@ def PR303():
 @app.route('/api/v1/mbc/PR304', methods=['GET'])  # API name for PR304 tenants
 def PR304():
     return logic(PR304_500172688)
+
+@app.route('/api/v1/mbc/PR002', methods=['GET'])  # API name for PR002 tenants
+def PR002():
+    return logic(PR002_500186492)
+
+@app.route('/api/v1/mbc/PR003', methods=['GET'])  # API name for PR003 tenants
+def PR003():
+    return logic(PR003_500189364)
+
+@app.route('/api/v1/mbc/PR102', methods=['GET'])  # API name for PR102 tenants
+def PR102():
+    return logic(PR102_500049440)
+
+@app.route('/api/v1/mbc/PR103', methods=['GET'])  # API name for PR103 tenants
+def PR103():
+    return logic(PR103_500186493)
+
+@app.route('/api/v1/mbc/PR202', methods=['GET'])  # API name for PR202 tenants
+def PR202():
+    return logic(PR202_500186494)
 
 
 #Tenant list as configured in Banklist.py

@@ -1,5 +1,4 @@
 PR301_500049309={
-
 'u700001':	['https://u700001-tmn.snw.eu2','GASCADE Gastransport GmbH'],
 'u700002':	['https://u700002-tmn.snw.eu2','Culligan International Company'],
 'u700003':	['https://u700003-tmn.snw.eu2','Cadent Gas Ltd Accounts Payable'],
@@ -14,17 +13,13 @@ PR301_500049309={
 'u700012':	['https://u700012-tmn.snw.eu2','PT XL Axiata, Tbk.'],
 'u700013':	['https://u700013-tmn.snw.eu2','Oki Electric Industry Co., Ltd.'],
 'u700015':	['https://u700015-tmn.snw.eu2','Google LLC'],
-#'u700016':	['https://u700016-tmn.snw.eu2','SAP IT Business Systeme'],
 'u700017':	['https://u700017-tmn.snw.eu2','Industrialization & Energy Service Co. (TAQA)'],
 'u700018':	['https://u700018-tmn.snw.eu2','Sonos Inc'],
 'u700019':	['https://u700019-tmn.snw.eu2','Google LLC'],
-#'u700020':	['https://u700020-tmn.snw.eu2','Wacker Chemie AG'],
 }
 
 PR302_500054753={
-
 'u700021':['https://u700021-tmn.snw.eu2','PricewaterhouseCoopers Global Licensing Services Corporation'],
-#'u700022':['https://u700022-tmn.snw.eu2','Saipem S.p.A.'],
 'u700023':['https://u700023-tmn.snw.eu2','Barclays Bank Plc'],
 'u700024':['https://u700024-tmn.snw.eu2','Splunk Inc.'],
 'u700025':['https://u700025-tmn.snw.eu2','Daimani AG'],
@@ -37,7 +32,6 @@ PR302_500054753={
 'u700032':['https://u700032-tmn.snw.eu2','Bausch Health Americas, Inc.'],
 'u700033':['https://u700033-tmn.snw.eu2','Südzucker AG'],
 'u700034':['https://u700034-tmn.snw.eu2','Schweizerische Bundesbahnen SBB SBB Informatik'],
-#'u700035':['https://u700035-tmn.snw.eu2','Centrica PLC'],
 'u700036':['https://u700036-tmn.snw.eu2','Michael Pachleitner Group GmbH'],
 'u700037':['https://u700037-tmn.snw.eu2','Pon Services B.V.'],
 'u700038':['https://u700038-tmn.snw.eu2','Beeline GmbH'],
@@ -45,21 +39,21 @@ PR302_500054753={
 'u700040':['https://u700040-tmn.snw.eu2','NATIONAL GRID UK LIMITED']
 }
 
-
-
 PR303_500163845={
+'u700041':	['https://u700041-tmn.snw.eu2','Daimler AG'],
+'u700042':	['https://u700042-tmn.snw.eu2','Tecnimont S.p.A.'],
+'u700044':	['https://u700044-tmn.snw.eu2','Husky Oil Operations Ltd.'],
+'u700045':	['https://u700045-tmn.snw.eu2','Power International Holding'],
+'u700046':	['https://u700046-tmn.snw.eu2','Elanco US'],
 'u700047':	['https://u700047-tmn.snw.eu2','SUSE SOFTWARE SOLUTIONS UK LTD'],
 'u700048':	['https://u700048-tmn.snw.eu2','Hunt Consolidated Inc.'],
-#'u700049':	['https://u700049-tmn.snw.eu2','Gildemeister Beteiligungen GmbH'],
 'u700050':	['https://u700050-tmn.snw.eu2','Generali Life (Hong Kong) Limited'],
 'u700051':	['https://u700051-tmn.snw.eu2','Axalta Coating Systems, LLC'],
 'u700052':	['https://u700052-tmn.snw.eu2','FEV Europe GmbH'],
 'u700053':	['https://u700053-tmn.snw.eu2','SK Siltron Co.,Ltd.'],
 'u700054':	['https://u700054-tmn.snw.eu2','BPW Bergische Achsen Kommanditgesellschaft'],
 'u700055':	['https://u700055-tmn.snw.eu2','Stedin Holding N.V.'],
-#'u700056':	['https://u700056-tmn.snw.eu2','TOYOTA BOSHOKU EUROPE NV'],
 'u700057':	['https://u700057-tmn.snw.eu2','JetBlue Airways Corporation'],
-#'u700058':	['https://u700058-tmn.snw.eu2','Gate Gourmet Switzerland GmbH'],
 'u700059':	['https://u700059-tmn.snw.eu2','Boral Shared Business Services PTY LTD'],
 'u700060':	['https://u700060-tmn.snw.eu2','Cerved Group S.P.A.'],
 }
@@ -72,6 +66,42 @@ PR304_500172688={
 'u700065':	['https://u700065-tmn.snw.eu2','Cronos Group Inc'],
 'u700066':	['https://u700066-tmn.snw.eu2','Wintershall Dea GmbH'],
 'u700067':	['https://u700067-tmn.snw.eu2','Delivery Hero SE'],
+}
+
+
+PR002_500186492={
+'u0002':  	['https://u0002-tmn.snw.eu1','Corning Incorporated'],
+'u0003':  	['https://u0003-tmn.snw.eu1','Donnelley Financial, LLC'],
+'u0004':  	['https://u0004-tmn.snw.eu1','Magna International Inc.'],
+'u0005':  	['https://u0005-tmn.snw.eu1','Viskase Companies, Inc.'],
+}
+
+PR003_500189364={
+'u0001':   	['https://u0001-tmn.snw.eu1','Citibank N.A.'],
+}
+
+PR102_500049440={
+'e0007':  	['https://e0007-tmn.snw.eu1','KWS SAAT SE & Co. KGaA Finanzbuchhaltung'],
+'e0008':  	['https://e0008-tmn.snw.eu1','Wieland-Werke AG Metallwerke'],
+'e0009':  	['https://e0009-tmn.snw.eu1','HMD global Oy'],
+}
+
+PR103_500186493={
+'e0001':  	['https://e0001-tmn.snw.eu1','Prime Oil & Gas B.V. (Formally Petrobas)'],
+'e0003':  	['https://e0003-tmn.snw.eu1','Partners Group AG'],
+'e0004':  	['https://e0004-tmn.snw.eu1','Custom Development CSC DE'],
+'e0005':  	['https://e0005-tmn.snw.eu1','Shell Information Technology International B.V.'],
+'e0010':  	['https://e0010-tmn.snw.eu1','Reply S.p.A.'],
+'e0011':  	['https://e0011-tmn.snw.eu1','Vorwerker Diakonie gemeinnützige GmbH'],
+'e0012':  	['https://e0012-tmn.snw.eu1','VENTE PRIVEE.COM'],
+'e0013':  	['https://e0013-tmn.snw.eu1','Agrana Beteiligungs-AG'],
+}
+
+PR202_500186494={
+'j0001':  	['https://j0001-tmn.snw.eu1','Asian Paints Ltd'],
+}
+
+    #not in wiki
 # 'u700068':	['https://u700068-tmn.snw.eu2','SIG Trading Ltd'],
 # 'u700069':	['https://u700069-tmn.snw.eu2','HPC Germany GmbH & Co. KG'],
 # 'u700070':	['https://u700070-tmn.snw.eu2','SSM Health Care Corporation'],
@@ -85,7 +115,6 @@ PR304_500172688={
 # 'u700078':	['https://u700078-tmn.snw.eu2','Standard Chartered Bank'],
 # 'u700079':	['https://u700079-tmn.snw.eu2','Hitachi High-Tech Corporation'],
 # 'u700080':	['https://u700080-tmn.snw.eu2','DuPont Specialty Products USA, LLC.'],
-}
 
 # PR305_500186626={
 # 'u700081':['u700081-tmn.snw.eu2','AlixPartners, LLP']

@@ -36,7 +36,7 @@ def logDownload(id, guid, cid, ):
     path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
     e = requests.get(eu2Tenants[id][0] + path + guid + "')/$value", headers=hder)
     eLog.update({cid:e.text})  # Appended Error Text
-    print(cid)
+
 
 def read_CSV(file, json_file):
     csv_rows = []
@@ -56,20 +56,21 @@ def read_JSON(json_file):
         data = json.load(myfile)
 
     print(data)  # Display the Json Data on the Console
-    url = "https://api-smartops-dev.cfapps.us10.hana.ondemand.com/ibso/cpi"
-    headers = {'Content-Type': 'application/json', "Accept": 'application/json'}
-    response = requests.post(url, auth=HTTPBasicAuth(username='IBSO_SMARTOPS_USER', password='buk95gR7gb7%u1x'),
-                             data=json.dumps(data), headers=headers)
-    print(response.status_code)  # Print the Response Code
-    print(response.text)  # Print the response text
-
+    # url = "https://api-smartops-dev.cfapps.us10.hana.ondemand.com/ibso/cpi"
+    # headers = {'Content-Type': 'application/json', "Accept": 'application/json'}
+    # response = requests.post(url, auth=HTTPBasicAuth(username='IBSO_SMARTOPS_USER', password='buk95gR7gb7%u1x'),
+    #                          data=json.dumps(data), headers=headers)
+    # print(response.status_code)  # Print the Response Code
+    # print(response.text)  # Print the response text
+    #
     # print(response.headers)  # print response headers
     # return (response.status_code)
     print("After sending the Data")
     print(data)
 
 def format_data(data):
-
+    global eLog
+    file_name="MBC_Logs"
     data = sorted(data, key=lambda x: x[6], )  # Sorting by Correlation id
     data.append(["x","x","x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"])
     unique_data = []
@@ -82,6 +83,7 @@ def format_data(data):
             #extract the last unique entry to make the API call for the error log.
             if (unique_c_id != "Initial"):
                 logThreadList.append(threading.Thread(target=logDownload,args=(unique_data[-1][1],unique_m_id,unique_c_id)))
+
                 # path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
                 # e = requests.get(eu2Tenants[unique_data[-1][1]][0] + path + unique_m_id + "')/$value", headers=hder)
                 # unique_data[-1].append(e.text)  # Appended Error Text
@@ -127,20 +129,25 @@ def format_data(data):
     #Creating final usable data with unique entries and error code defined
     del unique_data[-1]
     unique_data=list(x[1:] for x in unique_data)
+
     for i in unique_data:
-        if (eLog.get(i[5])==True):
+        i.extend(["CPI-Generic","IBSO_DNT","00006","FSN"])
+        if (i[5] in eLog):
+            print(i[5],"-->",end= " ")
+            print(eLog[i[5]])
             i.append(eLog[i[5]])
 
-    with open('MBC_Logs.csv',"w") as csv_file:
+
+    with open(file_name+'.csv',"w") as csv_file:
         d_writer = csv.writer(csv_file)
         header = ["Client", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
-                  "Sender", "Receiver", "ApplicationMessageType", "Application-Id", "ErrorInformation"]
+                  "Sender", "Receiver", "ApplicationMessageType", "Application-Id","Project","Check Group","Check ID","System Role","ErrorInformation",]
         d_writer.writerow(header)
-        # d_writer.writerows(data)
         d_writer.writerows(unique_data)
 
+        file = file_name + ".csv"
+        json_file = file_name + ".json"
         read_CSV(file, json_file)
-
         read_JSON(json_file)
 
 read_time = datetime.utcnow()

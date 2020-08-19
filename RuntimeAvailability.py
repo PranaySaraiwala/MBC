@@ -1,6 +1,6 @@
 # coding=utf-8
 import threading
-from Auth import *
+from common.Auth import *
 import json
 import requests
 
