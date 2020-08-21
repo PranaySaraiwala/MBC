@@ -1,5 +1,5 @@
 # coding=utf-8
-eu2Tenants={
+Tenants={
 
 'u700001':  ['https://u700001-tmn.snw.eu2','GASCADE Gastransport GmbH'],
 'u700002':	['https://u700002-tmn.snw.eu2','Culligan International Company'],
@@ -58,10 +58,7 @@ eu2Tenants={
 'u700064':	['https://u700064-tmn.snw.eu2','Atieva USA, Inc. d/b/a Lucid Motors USA, Inc.'],
 'u700065':	['https://u700065-tmn.snw.eu2','Cronos Group Inc'],
 'u700066':	['https://u700066-tmn.snw.eu2','Wintershall Dea GmbH'],
-'u700067':	['https://u700067-tmn.snw.eu2','Delivery Hero SE']
-
-}
-eu1Tenants={
+'u700067':	['https://u700067-tmn.snw.eu2','Delivery Hero SE'],
 'u0001':    ['https://u0001-tmn.snw.eu1','Citibank N.A.'],
 'u0002':	['https://u0002-tmn.snw.eu1','Corning Incorporated'],
 'u0003':	['https://u0003-tmn.snw.eu1','Donnelley Financial, LLC'],

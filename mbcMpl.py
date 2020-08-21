@@ -1,9 +1,10 @@
 # Change Line 132 based on python version (2.7 or 3.6)
-from common.Bank_List import *
+from common.bankList import *
 from common.pckg import *
 from datetime import datetime, timedelta
 import threading
 import csv
+from requests.auth import HTTPBasicAuth
 
 def callThreads(tList):
     #starts each thread
@@ -34,7 +35,7 @@ def mplDownload(id,url,link):
 def logDownload(id, guid, cid, ):
     global eLog
     path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
-    e = requests.get(eu2Tenants[id][0] + path + guid + "')/$value", headers=hder)
+    e = requests.get(Tenants[id][0] + path + guid + "')/$value", headers=hder)
     eLog.update({cid:e.text})  # Appended Error Text
 
 
@@ -47,7 +48,7 @@ def read_CSV(file, json_file):
             csv_rows.extend([{field[i]: row[field[i]] for i in range(len(field))}])
         with open(json_file, "w") as f:
             json_data = f.write(json.dumps(csv_rows, sort_keys=False, indent=4, separators=(',', ': ')))
-            print(json_data)
+            #print(json_data)
             return json_data
             # read_JSON(file, json_file)
 
@@ -56,17 +57,18 @@ def read_JSON(json_file):
         data = json.load(myfile)
 
     print(data)  # Display the Json Data on the Console
-    # url = "https://api-smartops-dev.cfapps.us10.hana.ondemand.com/ibso/cpi"
-    # headers = {'Content-Type': 'application/json', "Accept": 'application/json'}
-    # response = requests.post(url, auth=HTTPBasicAuth(username='IBSO_SMARTOPS_USER', password='buk95gR7gb7%u1x'),
-    #                          data=json.dumps(data), headers=headers)
-    # print(response.status_code)  # Print the Response Code
-    # print(response.text)  # Print the response text
+    url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+    headers = {'Content-Type': 'application/json', "Accept": 'application/json'}
+    response = requests.post(url, auth=HTTPBasicAuth(username='IBSO_SMARTOPS_USER', password='buk95gR7gb7%u1x'),
+                             data=json.dumps(data), headers=headers)
+    print("Response Code", response.status_code)
+
+    print(response.text)  # Print the response text
     #
     # print(response.headers)  # print response headers
     # return (response.status_code)
-    print("After sending the Data")
-    print(data)
+    # print("After sending the Data")
+    # print(data)
 
 def format_data(data):
     global eLog
@@ -131,7 +133,7 @@ def format_data(data):
     unique_data=list(x[1:] for x in unique_data)
 
     for i in unique_data:
-        i.extend(["CPI-Generic","IBSO_DNT","00006","FSN"])
+        i.extend(["",i[0],"IBSO_DNT","00006","FSN"])
         if (i[5] in eLog):
             print(i[5],"-->",end= " ")
             print(eLog[i[5]])
@@ -140,15 +142,17 @@ def format_data(data):
 
     with open(file_name+'.csv',"w") as csv_file:
         d_writer = csv.writer(csv_file)
-        header = ["Client", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
-                  "Sender", "Receiver", "ApplicationMessageType", "Application-Id","Project","Check Group","Check ID","System Role","ErrorInformation",]
+        header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
+                  "Sender", "Receiver", "ApplicationMessageType", "ApplicationId","ErrorCode","Client","CheckGroup","CheckID","SystemRole","ErrorInformation",]
         d_writer.writerow(header)
         d_writer.writerows(unique_data)
 
         file = file_name + ".csv"
         json_file = file_name + ".json"
+
+        print(json_file)
         read_CSV(file, json_file)
-        read_JSON(json_file)
+        #read_JSON(json_file)
 
 read_time = datetime.utcnow()
 end = read_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
@@ -167,7 +171,7 @@ mplLink = ".hana.ondemand.com/api/v1/MessageProcessingLogs/?$inlinecount=allpage
 
 print("Download Started for time range --- ", start, " and ", end)
 #Creating a thread for each of the tenants
-for id, value in eu2Tenants.items():
+for id, value in Tenants.items():
     mplThreadList.append(threading.Thread(target=mplDownload,args=(id,value[0],mplLink)))
 callThreads(mplThreadList)
 

@@ -1,8 +1,19 @@
 import paramiko
+import base64
+
+
+def decode(text):
+    base64_bytes = text.encode('ascii')
+    message_bytes = base64.b64decode(base64_bytes)
+    message = message_bytes.decode('ascii')
+    return message
+
+
 
 hostname = "DEWDFGLP01721.wdf.sap.corp"
-username = "I349233"
-pwd=
+username = decode("STM0OTIzMw==")
+password = decode("SWNoX01hY29fMTIz")
+
 commands = [
 
     "pwd",

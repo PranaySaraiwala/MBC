@@ -1,20 +1,18 @@
 from flask import Flask
 from flask import make_response
 from flask import jsonify
-from ErrorIflowCheck import *
+from errorIflowCheck import *
 from common.cluster import *
-#from Bank_List import *
 
 def logic(cluster):
     res = main(cluster)
     if(res[0]==200):
         return make_response(jsonify({'Status': 'Ok'}), 200)
 
-    elif(res[0]==201):
-        return make_response(jsonify(prepareErrorData(res[1])), 500)
+    elif(res[0]==500):
+        return make_response(jsonify(prepareData(res[1],500)), 500)
     else:
-        # return make_response(json.dumps(prepareData(res[1]), sort_keys=False, indent=4, separators=(',', ': ')),201)
-        return make_response(jsonify(prepareData(res[1])), 201)
+        return make_response(jsonify(prepareData(res[1],201)), 201)
 
 app=Flask(__name__)
 app.config["DEBUG"] = True
@@ -65,16 +63,6 @@ def PR103():
 def PR202():
     return logic(PR202_500186494)
 
-
-#Tenant list as configured in Banklist.py
-
-# @app.route('/api/v1/mbc/eu2', methods=['GET'])  # API name to check all eu2 tenants
-# def eu2():
-#     return logic(eu2Tenants)
-#
-# @app.route('/api/v1/mbc/eu1', methods=['GET'])  # API name to check all eu1 tenants
-# def eu1():
-#     return logic(eu1Tenants)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)

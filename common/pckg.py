@@ -1,6 +1,6 @@
 import json
 import requests
-from common.Auth import *
+from common.auth import *
 
 def download_delta(id,_path):
     data = []
