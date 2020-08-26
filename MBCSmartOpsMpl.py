@@ -133,7 +133,8 @@ def format_data(data):
     callThreads(logThreadList)
 
     for i in unique_data:
-        i.extend(["",i[0],"IBSO_DNT","00006","FSN"])
+        #i.extend(["",i[0],"IBSO_DNT","00006","FSN"])
+        i.extend(["", "j0001", "IBSO_DNT", "00006", "FSN"])
         if (i[5] in eLog):
             i.append(eLog[i[5]])
 
