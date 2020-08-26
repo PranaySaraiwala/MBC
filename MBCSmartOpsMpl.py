@@ -16,9 +16,11 @@ def joinThreads(tList):
         i.join()
 
 def mplDownload(id,url,link):
+    global errorCount
     global logData
     threadData=[]
-    response=download_delta(id,url+link)
+    response,status=download_delta(id,url+link)
+    errorCount.update({id: status})
     for _i in response:
         for i in _i:
             for j in i:
@@ -219,6 +221,7 @@ try:
 except:
     print("No Existing file exits so extracting log of last 60 min")
     start = (read_time - timedelta(minutes=60)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+errorCount={}
 eLog = {}
 mplThreadList = []
 logData = []
@@ -231,6 +234,11 @@ for id, value in Tenants.items():
     mplThreadList.append(threading.Thread(target=mplDownload,args=(id,value[0],mplLink)))
 startThreads(mplThreadList)
 joinThreads(mplThreadList)
+
+for i in Tenants.keys():
+    if (errorCount.get(i)==None):
+        print("Could not fetch log from: ",i)
+        raise LookupError
 
 print("Download delta Function for all threads complete")
 #formatting the data into json
