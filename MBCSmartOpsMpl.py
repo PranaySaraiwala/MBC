@@ -5,10 +5,12 @@ from common.smartOpsAuth import *
 from datetime import datetime, timedelta
 import threading
 
-def callThreads(tList):
+def startThreads(tList):
     #starts each thread
     for i in tList:
         i.start()
+
+def joinThreads(tList):
     #joins each thread
     for i in tList:
         i.join()
@@ -31,21 +33,57 @@ def mplDownload(id,url,link):
                  str(i["Sender"]), str(i["Receiver"]), i["ApplicationMessageType"], i["ApplicationMessageId"]])
     logData.extend(threadData)
 
-def logDownload(id, value):
+@retry(tries=6,backoff=2)
+def logDownload(id,value):
     global eLog
-    print("Failures in tenant: "+id+" = "+str(len(value)))
 
-    for i in value:
-        path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
-        e = requests.get(Tenants[id][0] + path + i[0] + "')/$value", headers=hder)
-        eLog.update({i[1]:e.text})  # Appended Error Text
-        print(i[1], "-->",e.text)
+    path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
+    e = requests.get(Tenants[id][0] + path + value[0] + "')/$value", headers=hder)
+    eLog.update({value[1]:e.text})  # Appended Error Text
+    print(value[1], "-->",e.text)
 
 
-#split the data in case the no of failures are more.
+def QueueDownload(id, value ):
+    count=0
+    total=len(value)
+    print("Failures in tenant: "+id+" = "+str(total))
+    logThreadList=[]
+    while total !=0:
+        count += 1
+        for i in range(0,10):
+
+            if(total>0):
+                #print(str(id)+" thread no= "+str(count)+str(i))
+                t=threading.Thread(target=logDownload,args=(id,value.pop()))
+                t.start()
+                logThreadList.append(t)
+                total = len(value)
+
+        joinThreads(logThreadList)
+
+
+
+
+    # for i in value:
+    #     errorcode=""
+    #     path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
+    #     e = requests.get(Tenants[id][0] + path + i[0] + "')/$value", headers=hder)
+    #     eLog.update({i[1]:[e.text]})  # Appended Error Text
+    #     print(i[1], "-->",e.text)
+    #     x = e.text
+    #     matchfound = "Null"
+    #     for ss in range(2, ignore_row_max + 1):
+    #         if ((eval(str(ignore_sheet[str('A' + str(ss))].value))) == True):
+    #             errorcode = ignore_sheet[str('B' + str(ss))].value
+    #             matchfound = "Valid"
+    #             break
+    #     if (matchfound == "Null"):
+    #         errorcode = "Unclassified"
+    #         # append Errorcode to the the Row value
+    #     eLog[i[1]].append(errorcode)
+
 def pushJson(data):
     file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
-    batchData=[]
     print("*"*20+"Json Data"+"*"*20)
     print(json.dumps(data))  # Display the Json Data on the Console
     lenData=len(data)
@@ -54,8 +92,8 @@ def pushJson(data):
         with open("MBCMpl_"+file_ext+str(i)+".json", "w") as f:
 
             batchData=data[i:i+100]
-            print("Batch:",i)
-            print(json.dumps(batchData))
+            print("Batch:", i)
+            #print(json.dumps(batchData))
             json.dump(batchData, f, indent=4)
 
             url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
@@ -64,27 +102,34 @@ def pushJson(data):
         # print("Response Text: ",response.text)  # Print the response text
         # print("Response Headers: ",response.headers)  # print response headers
 
+
 def format_data(data):
-    jsonData=[]
     logQueue={}
-    global eLog
     writeData=[]
     readData=[]
+    jsonData=[]
+    global eLog
     data = sorted(data, key=lambda x: x[6], )  # Sorting by Correlation id
     data.append(["x","x","x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"])
     unique_data = []
     unique_c_id = "Initial"
     unique_m_id = "Initial"
     unique_time = ""
-    logThreadList=[]
+    queueThreadList=[]
     for i in data:
         if (i[6] != unique_c_id):
             #extract the last unique entry to make the API call for the error log.
             if (unique_c_id != "Initial"):
                 #logThreadList.append(threading.Thread(target=logDownload,args=(unique_data[-1][1],unique_m_id,unique_c_id)))
+
+                #starts here
                 if logQueue.get(unique_data[-1][1]) == None:
                     logQueue.update({str(unique_data[-1][1]) : []})
                 logQueue[str(unique_data[-1][1])].append([unique_m_id,unique_c_id])
+
+
+
+                #ends here
 
             unique_data.append(i)
             unique_c_id = i[6]
@@ -120,15 +165,19 @@ def format_data(data):
                 if (i[9] != ""):
                     unique_data[-1][9] = i[9]  # Append AMID if unique
 
+    #starting the threads to download the error log
+
+
 
     #Creating final usable data with unique entries and error code defined
     del unique_data[-1]
     unique_data=list(x[1:] for x in unique_data)
 
     for key,value in logQueue.items():
-        logThreadList.append(threading.Thread(target=logDownload, args=(key, value)))
+        queueThreadList.append(threading.Thread(target=QueueDownload, args=(key, value)))
 
-    callThreads(logThreadList)
+    startThreads(queueThreadList)
+    joinThreads(queueThreadList)
 
     for i in unique_data:
         #i.extend(["",i[0],"IBSO_DNT","00006","FSN"])
@@ -180,7 +229,8 @@ print("Download Started for time range --- ", start, " and ", end)
 #Creating a thread for each of the tenants
 for id, value in Tenants.items():
     mplThreadList.append(threading.Thread(target=mplDownload,args=(id,value[0],mplLink)))
-callThreads(mplThreadList)
+startThreads(mplThreadList)
+joinThreads(mplThreadList)
 
 print("Download delta Function for all threads complete")
 #formatting the data into json
