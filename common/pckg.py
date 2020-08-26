@@ -1,7 +1,9 @@
 import json
 import requests
 from common.Auth import *
+from retry import retry
 
+@retry(tries=3,backoff=2)
 def download_delta(id,_path):
     data = []
     part = _path.rpartition("/")

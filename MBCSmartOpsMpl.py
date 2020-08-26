@@ -4,8 +4,6 @@ from common.pckg import *
 from common.smartOpsAuth import *
 from datetime import datetime, timedelta
 import threading
-import csv
-from requests.auth import HTTPBasicAuth
 
 def callThreads(tList):
     #starts each thread
