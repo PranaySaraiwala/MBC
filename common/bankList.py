@@ -1,4 +1,3 @@
-# coding=utf-8
 Tenants={
 
 'u700001':  ['https://u700001-tmn.snw.eu2','GASCADE Gastransport GmbH'],
