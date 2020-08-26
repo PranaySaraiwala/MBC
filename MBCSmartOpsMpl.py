@@ -35,7 +35,7 @@ def mplDownload(id,url,link):
 
 def logDownload(id, value):
     global eLog
-    print("fetching error info from tenant"+id)
+    print("Failures in tenant: "+id+" = "+str(len(value)))
 
     for i in value:
         path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
@@ -46,13 +46,15 @@ def logDownload(id, value):
 
 #split the data in case the no of failures are more.
 def pushJson(data):
-    global end
+    file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
+
     batchData=[]
     print("*"*20+"Json Data"+"*"*20)
     print(json.dumps(data))  # Display the Json Data on the Console
     lenData=len(data)
+    print(lenData)
     for i in range(0,lenData,100):
-        with open("ICHLogs_"+end+"--"+str(i)+".json", "w") as f:
+        with open("MBCMpl_"+file_ext+str(i)+".json", "w") as f:
 
             batchData=data[i:i+100]
             print("Batch:",i)
@@ -134,9 +136,8 @@ def format_data(data):
     for i in unique_data:
         i.extend(["",i[0],"IBSO_DNT","00006","FSN"])
         if (i[5] in eLog):
-            print(i[5],"-->",end= " ")
-            print(eLog[i[5]])
             i.append(eLog[i[5]])
+
     header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
               "Sender", "Receiver", "ApplicationMessageType", "ApplicationId", "ErrorCode", "Client", "CheckGroup",
               "CheckID", "SystemRole", "ErrorInformation", ]
@@ -146,6 +147,7 @@ def format_data(data):
             readData=[x[:-1] for x in f.readlines()]
     except:
         readData=[]
+
     for i in unique_data:
         if i[5] not in readData:
             writeData.append(i[5])
