@@ -1,31 +1,29 @@
-# from common.smartOpsAuth import *
-# import requests
-# import json
-# def pushJson():
-#
-#     # global end
-#     # batchData=[]
-#     # print("*"*20+"Json Data"+"*"*20)
-#     # print(json.dumps(data))  # Display the Json Data on the Console
-#     # lenData=len(data)
-#     # for i in range(0,lenData,100):
-#     #     with open("ICHLogs_"+end+"--"+str(i)+".json", "w") as f:
-#     #
-#     #         batchData=data[i:i+100]
-#     #         print("Batch:",i)
-#     #         print(json.dumps(batchData))
-#     #         json.dump(batchData, f, indent=4)
-#     with open("MBC_Logs.json") as f:
-#         x=json.load(f)
-#         print(json.dumps(x))
-#         url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
-#         response = requests.post(url,data=json.dumps(x), headers=sOHder)
-#         print("Response Code: ", response.status_code)
-#         # print("Response Text: ",response.text)  # Print the response text
-#         # print("Response Headers: ",response.headers)  # print response headers
-#
-# pushJson()
+from common.smartOpsAuth import *
+import requests
+import json
+def pushJson():
 
-from datetime import datetime, timedelta
-read_time = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
-print(read_time)
+    # global end
+    # batchData=[]
+    # print("*"*20+"Json Data"+"*"*20)
+    # print(json.dumps(data))  # Display the Json Data on the Console
+    # lenData=len(data)
+    # for i in range(0,lenData,100):
+    #     with open("ICHLogs_"+end+"--"+str(i)+".json", "w") as f:
+    #
+    #         batchData=data[i:i+100]
+    #         print("Batch:",i)
+    #         print(json.dumps(batchData))
+    #         json.dump(batchData, f, indent=4)
+    x=[{"Tenant": "u0005", "Status": "FAILED", "IntegrationFlowName": "u0005_Viskase_BAML_Responses", "MessageGuid": "AF9GD7gmH6DtqPxnef2V_ZQfvTuy", "TimeStamp": "Aug 26 2020 07:31:04", "CorrelationId": "AF9GD7jWptHRT6i1X7vA3B8NP0jK", "Sender": "", "Receiver": "Viskase_BankResponses_SOAP", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u0005", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "org.apache.cxf.interceptor.Fault: Could not send Message., cause: org.apache.cxf.transport.http.HTTPException: HTTP response '403: null' when communicating with https://u0005-ifl.snsp.eu1.hana.ondemand.com/cxf/fsn/corp/push_VKP100"}, {"Tenant": "u0005", "Status": "FAILED", "IntegrationFlowName": "u0005_Viskase_BAML_Responses", "MessageGuid": "AF9GD_Jd_H_slmlCnrP1ZrcBjwO3", "TimeStamp": "Aug 26 2020 07:32:02", "CorrelationId": "AF9GD_IebE-sDWrSfNUn0aDupg0p", "Sender": "", "Receiver": "Viskase_BankResponses_SOAP", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u0005", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "org.apache.cxf.interceptor.Fault: Could not send Message., cause: org.apache.cxf.transport.http.HTTPException: HTTP response '403: null' when communicating with https://u0005-ifl.snsp.eu1.hana.ondemand.com/cxf/fsn/corp/push_VKP100"}, {"Tenant": "u700012", "Status": "FAILED", "IntegrationFlowName": "XL_Axiata_Payments", "MessageGuid": "AF9GEBAQCPLISOhD1eHORtOfGb9A", "TimeStamp": "Aug 26 2020 07:32:32", "CorrelationId": "AF9GEBBIQ1ewUUtWuBCpNPeTaMjT", "Sender": "CORP_XI", "Receiver": "", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u700012", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "Inbound processing in endpoint at /payments_EXX088 failed with message \"Fault:java.lang.IllegalStateException: No FSNMessage found.\", caused by \"IllegalStateException:No FSNMessage found.\""}, {"Tenant": "e0004", "Status": "FAILED", "IntegrationFlowName": "SWIFT_TOCORP_PAYLOAD_V1.1", "MessageGuid": "AF9GECwtDJDB8W3KWgfXYb_BKzac", "TimeStamp": "Aug 26 2020 07:33:00", "CorrelationId": "AF9GECz3UHOR7Ul0Rjd0L_fBacO5", "Sender": "", "Receiver": "", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "e0004", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "com.sap.esb.datastore.MessageNotFoundException: No message found for id VAIGDE33_COBA.VAIG.20200826.0127.XML.SNL10468D11598427104683165C.fa in store DS_FA_ErrorFiles"}, {"Tenant": "u0005", "Status": "FAILED", "IntegrationFlowName": "u0005_Viskase_BAML_Responses", "MessageGuid": "AF9GEDBCzcjswH0p-ZUiWurQOSu_", "TimeStamp": "Aug 26 2020 07:33:04", "CorrelationId": "AF9GEDAHxHglXJ81AAC1hLAEOMXA", "Sender": "", "Receiver": "Viskase_BankResponses_SOAP", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u0005", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "org.apache.cxf.interceptor.Fault: Could not send Message., cause: org.apache.cxf.transport.http.HTTPException: HTTP response '403: null' when communicating with https://u0005-ifl.snsp.eu1.hana.ondemand.com/cxf/fsn/corp/push_VKP100"}, {"Tenant": "u700012", "Status": "FAILED", "IntegrationFlowName": "XL_Axiata_Payments", "MessageGuid": "AF9GEEyJlYublzFkl-v_shr8My67", "TimeStamp": "Aug 26 2020 07:33:32", "CorrelationId": "AF9GEEyCmjBSXgF6XsLEDBeM-dXL", "Sender": "CORP_XI", "Receiver": "", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u700012", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "Inbound processing in endpoint at /payments_EXX088 failed with message \"Fault:java.lang.IllegalStateException: No FSNMessage found.\", caused by \"IllegalStateException:No FSNMessage found.\""}, {"Tenant": "u0005", "Status": "FAILED", "IntegrationFlowName": "u0005_Viskase_BAML_Responses", "MessageGuid": "AF9GEGuZXHUrkhjFeXjFUcyiq_50", "TimeStamp": "Aug 26 2020 07:34:03", "CorrelationId": "AF9GEGutIS7z-BfYK5uALXvs4-BI", "Sender": "", "Receiver": "Viskase_BankResponses_SOAP", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u0005", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "org.apache.cxf.interceptor.Fault: Could not send Message., cause: org.apache.cxf.transport.http.HTTPException: HTTP response '403: null' when communicating with https://u0005-ifl.snsp.eu1.hana.ondemand.com/cxf/fsn/corp/push_VKP100"}, {"Tenant": "u0005", "Status": "FAILED", "IntegrationFlowName": "u0005_Viskase_BAML_Responses", "MessageGuid": "AF9GEKgwoT1XxlNn08H_e3oCrBtU", "TimeStamp": "Aug 26 2020 07:35:04", "CorrelationId": "AF9GEKgmB0cTHEtq-5DgUuxMuw1z", "Sender": "", "Receiver": "Viskase_BankResponses_SOAP", "ApplicationMessageType": "", "ApplicationId": "", "ErrorCode": "", "Client": "u0005", "CheckGroup": "IBSO_DNT", "CheckID": "00006", "SystemRole": "FSN", "ErrorInformation": "org.apache.cxf.interceptor.Fault: Could not send Message., cause: org.apache.cxf.transport.http.HTTPException: HTTP response '403: null' when communicating with https://u0005-ifl.snsp.eu1.hana.ondemand.com/cxf/fsn/corp/push_VKP100"}]
+    print(json.dumps(x))
+
+    url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+    response = requests.post(url,json=x, headers=sOHder)
+    print("Response Code: ", response.status_code)
+    print(x)
+    print("Response Text: ",response.text)  # Print the response text
+    print("Response Headers: ",response.headers)  # print response headers
+
+pushJson()
+

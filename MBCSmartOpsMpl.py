@@ -47,7 +47,6 @@ def logDownload(id, value):
 #split the data in case the no of failures are more.
 def pushJson(data):
     file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
-
     batchData=[]
     print("*"*20+"Json Data"+"*"*20)
     print(json.dumps(data))  # Display the Json Data on the Console
@@ -61,9 +60,9 @@ def pushJson(data):
             print(json.dumps(batchData))
             json.dump(batchData, f, indent=4)
 
-        url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
-        response = requests.post(url,data=json.dumps(batchData), headers=sOHder)
-        print("Response Code: ", response.status_code)
+            url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+            response = requests.post(url,json=batchData, headers=sOHder)
+            print("Response Code: ", response.status_code)
         # print("Response Text: ",response.text)  # Print the response text
         # print("Response Headers: ",response.headers)  # print response headers
 
