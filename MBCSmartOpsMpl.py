@@ -41,9 +41,8 @@ def logDownload(id,value):
 
     path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
     e = requests.get(Tenants[id][0] + path + value[0] + "')/$value", headers=hder)
-    eLog.update({value[1]:e.text})  # Appended Error Text
-    print(value[1], "-->",e.text)
-
+    eLog.update({value[1]: [e.text,""]})  # Appended Error Text
+    print(value[1], "-->", e.text)
 
 def QueueDownload(id, value ):
     count=0
@@ -84,35 +83,65 @@ def QueueDownload(id, value ):
     #         # append Errorcode to the the Row value
     #     eLog[i[1]].append(errorcode)
 
-def pushJson(data):
+@retry(tries=6,backoff=2)
+def pushJson(data,num):
+
+    print("Pushing Batch:", i)
+    # DEV endpoint url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+    url = "https://api-smartops.cfapps.us10.hana.ondemand.com/ibso/cpi"
+    try:
+        response = requests.post(url, json=data, headers=sOHder)
+        print("Response Code: ", response.status_code)
+        # print("Response Text: ",response.text)  # Print the response text
+        # print("Response Headers: ",response.headers)  # print response headers
+    except Exception as e:
+        print(e)
+        raise Exception()
+
+def splitJson(data):
     file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
     print("*"*20+"Json Data"+"*"*20)
-    print(json.dumps(data))  # Display the Json Data on the Console
+    #print(json.dumps(data))  # Display the Json Data on the Console
     lenData=len(data)
-    print(lenData)
+    print("total count= ",lenData)
     for i in range(0,lenData,100):
         with open("MBCMpl_"+file_ext+str(i)+".json", "w") as f:
 
             batchData=data[i:i+100]
-            print("Batch:", i)
             #print(json.dumps(batchData))
             json.dump(batchData, f, indent=4)
+            #pushJson(batchData,i)
 
-            #Dev Endpoint URL
-            #url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+def removeDuplicates(data):
+    jsonData=[]
+    writeData=[]
+    header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
+              "Sender", "Receiver", "ApplicationMessageType", "ApplicationId", "Client", "CheckGroup",
+              "CheckID", "SystemRole", "ErrorInformation", "ErrorCode"]
 
-            url="https://api-smartops.cfapps.us10.hana.ondemand.com/ibso/cpi"
-            response = requests.post(url,json=batchData, headers=sOHder)
-            print("Response Code: ", response.status_code)
-        # print("Response Text: ",response.text)  # Print the response text
-        # print("Response Headers: ",response.headers)  # print response headers
+    try:
+        with open("prevCorr.txt","r") as f:
+            readData=[x[:-1] for x in f.readlines()]
+    except:
+        readData=[]
+
+    for i in data:
+        if i[5] not in readData:
+            writeData.append(i[5])
+            tup=zip(header,i)
+            dic={}
+            for i,j in tup:
+                dic[i]=j
+            jsonData.append(dic)
+
+    with open("prevCorr.txt","w") as f:
+        for i in writeData:
+            f.write(i+"\n")
+    return jsonData
 
 
 def format_data(data):
     logQueue={}
-    writeData=[]
-    readData=[]
-    jsonData=[]
     global eLog
     data = sorted(data, key=lambda x: x[6], )  # Sorting by Correlation id
     data.append(["x","x","x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"])
@@ -125,16 +154,10 @@ def format_data(data):
         if (i[6] != unique_c_id):
             #extract the last unique entry to make the API call for the error log.
             if (unique_c_id != "Initial"):
-                #logThreadList.append(threading.Thread(target=logDownload,args=(unique_data[-1][1],unique_m_id,unique_c_id)))
 
-                #starts here
                 if logQueue.get(unique_data[-1][1]) == None:
                     logQueue.update({str(unique_data[-1][1]) : []})
                 logQueue[str(unique_data[-1][1])].append([unique_m_id,unique_c_id])
-
-
-
-                #ends here
 
             unique_data.append(i)
             unique_c_id = i[6]
@@ -170,10 +193,6 @@ def format_data(data):
                 if (i[9] != ""):
                     unique_data[-1][9] = i[9]  # Append AMID if unique
 
-    #starting the threads to download the error log
-
-
-
     #Creating final usable data with unique entries and error code defined
     del unique_data[-1]
     unique_data=list(x[1:] for x in unique_data)
@@ -185,34 +204,14 @@ def format_data(data):
     joinThreads(queueThreadList)
 
     for i in unique_data:
-        i.extend(["",i[0],"IBSO_EXT","00002","FSN"])
+        i.extend([i[0],"IBSO_EXT","00002","FSN"])
         if (i[5] in eLog):
-            i.append(eLog[i[5]])
+            i.extend(eLog[i[5]])
 
-    header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
-              "Sender", "Receiver", "ApplicationMessageType", "ApplicationId", "ErrorCode", "Client", "CheckGroup",
-              "CheckID", "SystemRole", "ErrorInformation", ]
+    jsonData=removeDuplicates(unique_data)
 
-    try:
-        with open("prevCorr.txt","r") as f:
-            readData=[x[:-1] for x in f.readlines()]
-    except:
-        readData=[]
+    splitJson(jsonData)
 
-    for i in unique_data:
-        if i[5] not in readData:
-            writeData.append(i[5])
-            tup=zip(header,i)
-            dic={}
-            for i,j in tup:
-                dic[i]=j
-            jsonData.append(dic)
-
-    with open("prevCorr.txt","w") as f:
-        for i in writeData:
-            f.write(i+"\n")
-
-    pushJson(jsonData)
 
 read_time = datetime.utcnow()
 end = read_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
