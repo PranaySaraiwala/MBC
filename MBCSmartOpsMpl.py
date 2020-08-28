@@ -98,7 +98,10 @@ def pushJson(data):
             #print(json.dumps(batchData))
             json.dump(batchData, f, indent=4)
 
-            url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+            #Dev Endpoint URL
+            #url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
+
+            url="https://api-smartops.cfapps.us10.hana.ondemand.com/ibso/cpi"
             response = requests.post(url,json=batchData, headers=sOHder)
             print("Response Code: ", response.status_code)
         # print("Response Text: ",response.text)  # Print the response text
@@ -182,8 +185,7 @@ def format_data(data):
     joinThreads(queueThreadList)
 
     for i in unique_data:
-        #i.extend(["",i[0],"IBSO_DNT","00006","FSN"])
-        i.extend(["", "j0001", "IBSO_DNT", "00006", "FSN"])
+        i.extend(["",i[0],"IBSO_EXT","00002","FSN"])
         if (i[5] in eLog):
             i.append(eLog[i[5]])
 
