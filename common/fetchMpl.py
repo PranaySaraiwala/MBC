@@ -1,20 +1,70 @@
-# Change Line 132 based on python version (2.7 or 3.6)
-from common.tenants import *
 from common.pckg import *
 from common.smartOpsAuth import *
+from common.mbcFetchConfig import *
 from datetime import datetime, timedelta
 import threading
 
 
-def ErrorCategory():
+def timeRange():
+    read_time = datetime.utcnow()
+    end = read_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
 
-    igb = load_workbook(filename=r"error_Category.xlsx")
+    try:
+        with open('last_run.txt', "r") as f:
+            start = f.read()
+    except:
+        print("No Existing file exits so extracting log of last 60 min")
+        start = (read_time - timedelta(minutes=60)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
 
-    ignore_sheet = igb["Conditions"]
-    # maximum number of rows in the Error Category sheet
-    ignore_row_max = ignore_sheet.max_row
-    return ignore_sheet,ignore_row_max
-#ignore_sheet,ignore_row_max=ErrorCategory()
+    print("Download Started for time range --- ", start, " and ", end)
+
+    return start,end,read_time
+
+def startFetch(tenant,mplLink):
+    errorCount={}
+    logData=[]
+    mplThreadList = []
+
+    for id, value in tenant.items():
+        mplThreadList.append(threading.Thread(target=mplDownload,args=(id,value[0],mplLink,logData,errorCount)))
+
+    startThreads(mplThreadList)
+    joinThreads(mplThreadList)
+
+    return logData,errorCount
+
+def checkError(tenant,errorCount):
+    for i in tenant.keys():
+        if (errorCount.get(i)==None):
+            print("Could not fetch log from: ",i)
+            raise LookupError
+
+def pushErrorCheck(data):
+
+    if(len(data)!=0):
+        for key,value in data.items():
+            print("Affected batch: ",key)
+            print("Error: ",value)
+
+        raise Exception("Not all push were successful")
+
+def updateTime(read_time):
+    # start time for next run( 3 Second Overlap)
+    print("Updating timing for next run")
+    wr = (read_time - timedelta(seconds=3)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+    with open('last_run.txt', "w+") as f:
+        f.write(wr)
+
+def addAdditionalData(eLog,data,Client,CheckGroup,CheckID,SystemRole):
+    for i in data:
+        if(Client!=""):
+            i.extend([Client,CheckGroup,CheckID,SystemRole])
+        else:
+            i.extend([i[0], CheckGroup, CheckID, SystemRole])
+
+        if (i[5] in eLog):
+            i.extend(eLog[i[5]])
+    return data
 
 def startThreads(tList):
     #starts each thread
@@ -44,15 +94,6 @@ def mplDownload(id,url,link,logData,errorCount):
                  str(i["Sender"]), str(i["Receiver"]), i["ApplicationMessageType"], i["ApplicationMessageId"]])
     logData.extend(threadData)
 
-@retry(tries=6,backoff=2)
-def logDownload(id,value,eLog):
-    global ignore_sheet,ignore_row_max
-
-    path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
-    e = requests.get(Tenants[id][0] + path + value[0] + "')/$value", headers=hder)
-    eLog.update({value[1]: [e.text,""]})  # Appended Error Text
-    print(value[1], "-->", e.text)
-
 def QueueDownload(id, value,eLog):
     count=0
     total=len(value)
@@ -71,65 +112,80 @@ def QueueDownload(id, value,eLog):
 
         joinThreads(logThreadList)
 
-@retry(tries=6,backoff=2)
-def pushJson(data,num):
-
+@retry(tries=3,backoff=2)
+def pushJson(data,num,file,url):
+    print("url=",url)
+    file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
     print("Pushing Batch:", num)
     print(json.dumps(data))
-    # DEV endpoint
-    url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
-    #PROD endpoint
-    #url = "https://api-smartops.cfapps.us10.hana.ondemand.com/ibso/cpi"
+
     try:
         response = requests.post(url, json=data, headers=sOHder)
+        statusCode=response.status_code
         print("Response Code: ", response.status_code)
-        # print("Response Text: ",response.text)  # Print the response text
-        # print("Response Headers: ",response.headers)  # print response headers
+
+        if(statusCode !=200):
+            return statusCode
+        else:
+            for i in data:
+                file.write(i["CorrelationId"] + "\n")
+
+            with open("Mpl_" + file_ext + str(num) + ".json", "w") as f:
+                json.dump(data, f, indent=4)
+            return "Ok"
+
+
     except Exception as e:
         print(e)
-        raise Exception()
+        raise Exception("Push Operation for Batch {} failed".format(num))
 
-def splitJson(data):
-    file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
+def splitJson(data,url,splitCount=80):
+    status={}
+
     print("*"*20+"Json Data"+"*"*20)
     #print(json.dumps(data))  # Display the Json Data on the Console
     lenData=len(data)
     print("total count= ",lenData)
-    for i in range(0,lenData,80):
-        with open("MBCMpl_"+file_ext+str(i)+".json", "w") as f:
+    with open("prevCorr.txt", "w") as file:
+        for i in range(0,lenData,splitCount):
+            batchData=data[i:i+splitCount]
+            retValue=pushJson(batchData,i,file,url)
+            if(retValue != "Ok"):
+                status.update({i:retValue})
+    return status
 
-            batchData=data[i:i+100]
-            json.dump(batchData, f, indent=4)
-            pushJson(batchData,i)
-
-def removeDuplicates(data):
-    jsonData=[]
-    writeData=[]
-    header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
-              "Sender", "Receiver", "ApplicationMessageType", "ApplicationId", "Client", "CheckGroup",
-              "CheckID", "SystemRole", "ErrorInformation", "ErrorCode"]
-
+def returnCheckData():
     try:
         with open("prevCorr.txt","r") as f:
             readData=[x[:-1] for x in f.readlines()]
     except:
         readData=[]
 
+    return readData
+
+def createJson(data,checkData):
+    count=0
+    jsonData=[]
+    header = ["Tenant", "Status", "IntegrationFlowName", "MessageGuid", "TimeStamp", "CorrelationId",
+              "Sender", "Receiver", "ApplicationMessageType", "ApplicationId", "Client", "CheckGroup",
+              "CheckID", "SystemRole", "ErrorInformation", "ErrorCode"]
+
     for i in data:
-        if i[5] not in readData:
-            writeData.append(i[5])
+        if i[5] not in checkData:
             tup=zip(header,i)
             dic={}
             for i,j in tup:
                 dic[i]=j
             jsonData.append(dic)
+        else:
+            count+=1
 
-    with open("prevCorr.txt","w") as f:
-        for i in writeData:
-            f.write(i+"\n")
+
+    print("Total Duplicates from previous run :",count)
     return jsonData
 
-def format_data(data):
+def format_data(data,url,extendData):
+    checkData=returnCheckData()
     logQueue={}
     eLog={}
     data = sorted(data, key=lambda x: x[6], )  # Sorting by Correlation id
@@ -143,7 +199,6 @@ def format_data(data):
         if (i[6] != unique_c_id):
             #extract the last unique entry to make the API call for the error log.
             if (unique_c_id != "Initial"):
-
                 if logQueue.get(unique_data[-1][1]) == None:
                     logQueue.update({str(unique_data[-1][1]) : []})
                 logQueue[str(unique_data[-1][1])].append([unique_m_id,unique_c_id])
@@ -192,15 +247,10 @@ def format_data(data):
     startThreads(queueThreadList)
     joinThreads(queueThreadList)
 
-    for i in unique_data:
+    unique_data=addAdditionalData(eLog,unique_data,*extendData)
 
-        #DEV Data
-        i.extend(["v0120","IBSO_DNT","00006","FSN"])
-        #PROD Data
-        #i.extend([i[0],"IBSO_EXT","00002","FSN"])
-        if (i[5] in eLog):
-            i.extend(eLog[i[5]])
+    jsonData=createJson(unique_data,checkData)
 
-    jsonData=removeDuplicates(unique_data)
+    pushStatus=splitJson(jsonData,url)
+    return pushStatus
 
-    splitJson(jsonData)
