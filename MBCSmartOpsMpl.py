@@ -1,5 +1,5 @@
 # Change Line 132 based on python version (2.7 or 3.6)
-from common.bankList import *
+from common.tenants import *
 from common.pckg import *
 from common.smartOpsAuth import *
 from datetime import datetime, timedelta
@@ -61,27 +61,6 @@ def QueueDownload(id, value ):
                 total = len(value)
 
         joinThreads(logThreadList)
-
-
-
-
-    # for i in value:
-    #     errorcode=""
-    #     path = ".hana.ondemand.com/api/v1/MessageProcessingLogErrorInformations('"
-    #     e = requests.get(Tenants[id][0] + path + i[0] + "')/$value", headers=hder)
-    #     eLog.update({i[1]:[e.text]})  # Appended Error Text
-    #     print(i[1], "-->",e.text)
-    #     x = e.text
-    #     matchfound = "Null"
-    #     for ss in range(2, ignore_row_max + 1):
-    #         if ((eval(str(ignore_sheet[str('A' + str(ss))].value))) == True):
-    #             errorcode = ignore_sheet[str('B' + str(ss))].value
-    #             matchfound = "Valid"
-    #             break
-    #     if (matchfound == "Null"):
-    #         errorcode = "Unclassified"
-    #         # append Errorcode to the the Row value
-    #     eLog[i[1]].append(errorcode)
 
 @retry(tries=6,backoff=2)
 def pushJson(data,num):
