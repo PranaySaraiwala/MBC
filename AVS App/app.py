@@ -17,7 +17,7 @@ def logic(cluster,type):
 app=Flask(__name__)
 app.config["DEBUG"] = True
 
-port = int(os.getenv("PORT", 9010))
+port = int(os.getenv("PORT", 9011))
 
 @app.route('/', methods=['GET'])
 def home():
