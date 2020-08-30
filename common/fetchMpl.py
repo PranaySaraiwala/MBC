@@ -114,7 +114,6 @@ def QueueDownload(id, value,eLog):
 
 @retry(tries=3,backoff=2)
 def pushJson(data,num,file,url):
-    print("url=",url)
     file_ext = datetime.utcnow().strftime('%Y-%m-%dT%H-%M-%S-B')
     print("Pushing Batch:", num)
     print(json.dumps(data))

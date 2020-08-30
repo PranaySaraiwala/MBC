@@ -1,7 +1,7 @@
 from retry import retry
 from openpyxl import load_workbook
 from common.tenants import *
-from common.Auth import *
+from common.auth import *
 import requests
 def ErrorCategory():
 

@@ -1,6 +1,6 @@
 import json
 import requests
-from common.Auth import *
+from common.auth import *
 from retry import retry
 from openpyxl import load_workbook
 

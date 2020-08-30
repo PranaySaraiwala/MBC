@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}API Result{% endblock %}
+
+{% block content %}
+
+<h1>Check Result</h1>
+
+{% if view == "runtime" %}
+    <table>
+        <tr>
+            <th>Tenant</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Home</th>
+        </tr>
+        {% for entries in result %}
+        <tr>
+            <td>{{ entries.Tenant}}</td>
+            <td>{{ entries.Customer}}</td>
+            <td>{{ entries.HealthStatus}}</td>
+            <td><a href="{{ entries.Home}}">Go to Tenant</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% else %}
+    <table>
+
+        <tr>
+            <th>Tenant</th>
+            <th>Customer</th>
+            <th>Home</th>
+            <th>ID</th>
+            <th>Version</th>
+            <th>Name</th>
+        </tr>
+
+        {% for entries in result %}
+            {% for data in entries.IflowDetails %}
+
+        <tr>
+            <td>{{ entries.Tenant}}</td>
+            <td>{{ entries.Customer}}</td>
+            <td><a href="{{ entries.Home}}">Go to Tenant</a></td>
+            <td>{{data.Id}}</td>
+            <td>{{data.Version}}</td>
+            <td>{{data.Name}}</td>
+        </tr>
+
+            {% endfor %}
+        {% endfor %}
+    </table>
+
+{% endif %}
+
+{% endblock %}

@@ -17,8 +17,8 @@ def main():
     url = "https://api-smartops-dev.cfapps.sap.hana.ondemand.com/ibso/cpi"
 
     # PROD Data
-    #extendData=["","IBSO_EXT","00002","FSN"]
-    #url = "https://api-smartops.cfapps.us10.hana.ondemand.com/ibso/cpi"
+    # extendData=["","IBSO_EXT","00002","FSN"]
+    # url = "https://api-smartops.cfapps.us10.hana.ondemand.com/ibso/cpi"
 
     pushErrorData=format_data(logData,url,extendData)
     pushErrorCheck(pushErrorData)
