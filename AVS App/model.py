@@ -3,6 +3,7 @@ import threading
 from common import *
 import json
 import requests
+from retry import retry
 
 def callThreads(tList):
     #starts each thread
@@ -37,6 +38,7 @@ def healthData(id,name,home,result,data,flag):
         createJson(result,baseHeader,Data)
         flag.add("Error")
 
+@retry(tries=2,backoff=2)
 def connectionCheck(id,tenantUrl,home,name,checkUrl,result,err,flag,type):
 
 
@@ -77,7 +79,7 @@ def main(tenantList,type):
         else:
             tenantUrl = value[0]
             checkUrl = runtimecheckUrl
-            home=tenantUrl+homeurl
+            home=value[1]+homeurl
 
         #Creating a thread for each of the tenants
         threadList.append(threading.Thread(target=connectionCheck,args=(id,tenantUrl,home,value[2],checkUrl,result,err,flag,type)))
